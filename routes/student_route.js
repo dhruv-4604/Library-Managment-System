@@ -12,39 +12,41 @@ const { JWT_SECRET } = require("../keys");
 router.post("/signup", (req, res) => {
     const {
         name,
-        password, email, roll_no, branch, year, phone_no,isAdmin
-
+        password, email, roll_no, branch, year, phone_no, isAdmin
     } = req.body;
-    if (!roll_no || !password) {
+    if (!roll_no || !password || !email) {
         return res.status(422).json({ error: "please add all the fields" });
     }
-    Student.findOne({ roll_no: roll_no })
+    Student.findOne({ $or: [{ roll_no: roll_no }, { email: email }] })
         .then((savedUser) => {
             if (savedUser) {
-                return res
-                    .status(422)
-                    .json({ error: "student already exists with that roll no" });
+                if (savedUser.roll_no === roll_no) {
+                    return res.status(422).json({ error: "student already exists with that roll no" });
+                } else {
+                    return res.status(422).json({ error: "student already exists with that email" });
+                }
             }
             bcrypt.hash(password, 12).then((hashedpassword) => {
                 const user = new Student({
                     name,
                     email, roll_no, branch, addmission_year: year, phone_no,
-                    password: hashedpassword,isAdmin
-
+                    password: hashedpassword, isAdmin
                 });
 
                 user
                     .save()
                     .then((user) => {
-                        res.json({ message: "saved successfully" });
+                        res.status(200).json({ message: "saved successfully" });
                     })
                     .catch((err) => {
                         console.log(err);
+                        res.status(500).json({ error: "Error saving user" });
                     });
             });
         })
         .catch((err) => {
             console.log(err);
+            res.status(500).json({ error: "Server error" });
         });
 });
 

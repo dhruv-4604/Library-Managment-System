@@ -43,8 +43,17 @@ router.get("/allBook", (req, res) => {
         );
     });
 });
-   
 
-
+router.delete('/:id', async (req, res) => {
+    try {
+        const book = await Book.findByIdAndDelete(req.params.id);
+        if (!book) {
+            return res.status(404).json({ message: 'Book not found' });
+        }
+        res.json({ message: 'Book deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
 
 module.exports = router;

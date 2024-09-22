@@ -59,3 +59,15 @@ export const filterBook = (searchKey)=> async dispatch =>{
        })
     }
 }
+
+export const deleteBook = (bookId) => async (dispatch) => {
+    try {
+        
+        const response = await axios.delete(`/api/books/${bookId}`);
+        dispatch({ type: 'DELETE_BOOK_SUCCESS', payload: bookId });
+        dispatch(getAllBook()); // Refresh the book list
+    } catch (error) {
+        console.error('Error deleting book:', error.response ? error.response.data : error.message);
+        dispatch({ type: 'DELETE_BOOK_FAIL', payload: error.response ? error.response.data : error.message });
+    }
+};

@@ -1,41 +1,46 @@
 import React from 'react';
 import { Link } from "react-router-dom";
-import StudentImage from "../Images/student4.jpg";
-import AdminImage from "../Images/admin2.jpg";
+import BookHiveLogo from "../assets/book-hive-logo.png";
+import LJUniversityLogo from "../assets/lj-university-logo.png";
+import StudentAdminIllustration from "../assets/student-admin-illustration.png";
+import StudentIcon from "../assets/student-icon.svg";
+import AdminIcon from "../assets/admin-icon.svg";
 
 const Home = () => {
     return (
-        <div className="bg-light min-vh-100 d-flex align-items-center justify-content-center">
-            <div className="bg-white p-5 rounded shadow-lg d-flex">
-                <div className="text-center mx-4">
-                    <img 
-                        src={AdminImage} 
-                        alt="Admin" 
-                        className="rounded-circle mb-4 shadow-sm"
-                        style={{width: '256px', height: '256px', objectFit: 'cover'}}
-                    />
-                    <Link 
-                        to="/adminLogin" 
-                        className="h4 text-primary text-decoration-none"
-                    >
-                        Sign in as Admin
-                    </Link>
+        <div className="min-vh-100 d-flex flex-column">
+            <header className="d-flex justify-content-between align-items-center p-4">
+                <img src={BookHiveLogo} alt="BookHive Logo" height="50" />
+                <img src={LJUniversityLogo} alt="LJ University Logo" height="50" />
+            </header>
+            
+            <main className="flex-grow-1 d-flex align-items-center">
+                <div className="container"  style={{boxShadow:'none'}}>
+                    <div className="row align-items-center">
+                        <div className="col-lg-6 text-center">
+                            <h1 className="text-primary mb-4" style={{fontSize: '2.5rem'}}>Welcome to LJ University Library Portal!</h1>
+                            <p className="mb-4">Please select your role from the options below:</p>
+                            
+                            <div className="d-flex justify-content-center gap-5 mt-5">
+                                <Link to="/login" className="text-decoration-none text-center">
+                                    <img src={StudentIcon} alt="Student" width="140" height="140" />
+                                </Link>
+                                
+                                <Link to="/adminLogin" className="text-decoration-none text-center" >
+                                    <img src={AdminIcon} alt="Admin" width="140" height="140" />
+                                </Link>
+                            </div>
+                        </div>
+                        <div className="col-lg-6">
+                            <img src={StudentAdminIllustration} alt="Library Illustration" className="img-fluid" />
+                        </div>
+                    </div>
                 </div>
-                <div className="text-center mx-4">
-                    <img 
-                        src={StudentImage} 
-                        alt="Student" 
-                        className="rounded-circle mb-4 shadow-sm"
-                        style={{width: '256px', height: '256px', objectFit: 'cover'}}
-                    />
-                    <Link 
-                        to="/login" 
-                        className="h4 text-success text-decoration-none"
-                    >
-                        Sign in as Student
-                    </Link>
-                </div>
-            </div>
+            </main>
+            
+            <footer className="text-center p-3 text-muted">
+                <small>If you encounter any issues, please feel free to contact our library administrator at <span style={{color:"#7687FC"}}>library.admin@ljiet.in.</span></small>
+            </footer>
         </div>
     );
 };

@@ -1,24 +1,15 @@
 import axios from 'axios';
 
-export const registerUser = (user) => async dispatch => {
-    dispatch({
-        type: 'USER_REGISTER_REQUEST'
-    })
-
+export const registerUser = (userData) => async (dispatch) => {
     try {
-        const res = await axios.post("/api/users/signup", user);
-        console.log(res)
-        dispatch({
-            type: 'USER_REGISTER_SUCCESS'
-
-        })
+        const response = await axios.post('/api/users/signup', userData);
+        // Return the entire response object
+        return response;
     } catch (error) {
-        dispatch({
-            type: 'USER_REGISTER_FAILED',
-            payload: error
-        })
+        // If there's an error, return it so we can handle it in the component
+        return error.response;
     }
-}
+};
 
 export const loginUser = (user) => async dispatch => {
     dispatch({

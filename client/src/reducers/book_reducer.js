@@ -29,3 +29,20 @@ export const getAllBookReducer = (state={books:[]},action)=>{
             return state         
     }
 }
+
+export const deleteBookReducer = (state={books:[]},action)=>{
+    switch(action.type){
+        case 'DELETE_BOOK_SUCCESS':
+            return {
+                ...state,
+                books: state.books.filter(book => book._id !== action.payload)
+            };
+        case 'DELETE_BOOK_FAIL':
+            return {
+                ...state,
+                error: action.payload
+            };
+        default:
+            return state;
+    }
+}

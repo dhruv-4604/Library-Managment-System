@@ -2,47 +2,82 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { loginUser } from "../actions/user_action";
 import { useDispatch } from 'react-redux'
-import StudentImage from "../Images/student4.jpg"
+import BookHiveLogo from "../assets/book-hive-logo.png";
+import LJUniversityLogo from "../assets/lj-university-logo.png";
+import PersonIcon from "../assets/person-icon-square.png";
 
 const Login = () => {
-    const [password, setPassword] = useState("123456");
-    const [show, setShow] = useState("password");
-    const [roll_no, setRoll_no] = useState("CS3150");
+    const [password, setPassword] = useState("");
+    const [roll_no, setRoll_no] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState("");
     const dispatch = useDispatch();
 
-    const PostData = () => {
+    const PostData = async () => {
         const user = { password, roll_no };
-        dispatch(loginUser(user));
-    };
-
-    const handleShow = () => {
-        if (show === "password") {
-            setShow("text");
-        } else {
-            setShow("password");
+        try {
+            const response = await dispatch(loginUser(user));
+            // Assuming loginUser action returns a promise that resolves on success
+            // and rejects on failure. Adjust this based on your actual implementation.
+            if (response.error) {
+                setError("Invalid ID or password. Please try again.");
+            } else {
+                setError(""); // Clear any previous errors on successful login
+            }
+        } catch (err) {
+            setError("Invalid ID or password. Please try again.");
         }
     };
 
     return (
-        <div className="container-fluid bg-light min-vh-100 d-flex align-items-center">
-            <div className="row justify-content-center w-100">
+        <div className="container-fluid bg-light min-vh-100 d-flex flex-column">
+            <header className="d-flex justify-content-between align-items-center p-4">
+                <Link to="/">
+                    <img src={BookHiveLogo} alt="BookHive Logo" height="50" />
+                </Link>
+                <img src={LJUniversityLogo} alt="LJ University Logo" height="50" />
+            </header>
+            <div className="row justify-content-center align-items-center flex-grow-1">
                 <div className="col-md-6 col-lg-4">
                     <div className="card shadow-lg">
                         <div className="card-body p-5">
                             <div className="text-center mb-4">
-                                <div className="rounded-circle bg-primary d-inline-flex justify-content-center align-items-center" style={{ width: "80px", height: "80px" }}>
-                                    <h3 className="text-white m-0">LMS</h3>
-                                </div>
-                                <h4 className="mt-3">Welcome to Library Management System</h4>
+                                <img src={PersonIcon} alt="Person Icon" className="mb-3" style={{ width: "100px", height: "100px" }} />
+                                <h4>Welcome to Library Management System</h4>
                             </div>
-                            <img src={StudentImage} alt="Student" className="rounded-circle mx-auto d-block mb-4" style={{ height: "150px", width: "150px" }} />
+                            {error && <div className="alert alert-danger" role="alert">{error}</div>}
                             <form>
                                 <div className="mb-3">
-                                    <input type="text" className="form-control form-control-lg" placeholder="Roll Number" value={roll_no} onChange={(e) => setRoll_no(e.target.value)} />
+                                    <input 
+                                        type="text" 
+                                        className="form-control form-control-lg" 
+                                        placeholder="Roll Number" 
+                                        value={roll_no} 
+                                        onChange={(e) => setRoll_no(e.target.value)} 
+                                    />
                                 </div>
-                                <div className="mb-3 position-relative">
-                                    <input type={show} className="form-control form-control-lg" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                                    <i className="fas fa-eye position-absolute top-50 end-0 translate-middle-y me-3" onClick={handleShow}></i>
+                                <div className="mb-3">
+                                    <input 
+                                        type={showPassword ? "text" : "password"}
+                                        className="form-control form-control-lg" 
+                                        placeholder="Password" 
+                                        value={password} 
+                                        onChange={(e) => setPassword(e.target.value)} 
+                                    />
+                                </div>
+                                <div className="mb-3 text-end">
+                                    <div className="form-check form-check-inline">
+                                        <input 
+                                            className="form-check-input" 
+                                            type="checkbox" 
+                                            id="showPasswordCheckbox" 
+                                            checked={showPassword}
+                                            onChange={() => setShowPassword(!showPassword)}
+                                        />
+                                        <label className="form-check-label" htmlFor="showPasswordCheckbox">
+                                            Show Password
+                                        </label>
+                                    </div>
                                 </div>
                                 <button type="button" className="btn btn-primary btn-lg w-100 mb-3" onClick={PostData}>
                                     Login
@@ -54,6 +89,14 @@ const Login = () => {
                         </div>
                     </div>
                 </div>
+            </div>
+            <footer className="text-center p-3 text-muted">
+                <small>If you encounter any issues, please feel free to contact our library administrator at <span style={{color:"#7687FC"}}>library.admin@ljiet.in.</span></small>
+            </footer>
+            <div className="position-fixed bottom-0 end-0 p-3">
+                <Link to="/" className="btn btn-outline-secondary btn-sm">
+                    <i className="fas fa-arrow-left me-2"></i>Back
+                </Link>
             </div>
         </div>
     );
