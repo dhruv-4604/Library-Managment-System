@@ -1,0 +1,13 @@
+.profile-card {
+    background-color: #f8f9fa;
+    border: none;
+}
+
+.profile-image {
+    border: 3px solid #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.table th {
+    background-color: #f1f3f5;
+}
