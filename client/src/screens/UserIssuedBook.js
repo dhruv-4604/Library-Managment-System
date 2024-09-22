@@ -1,136 +1,156 @@
-import React,{useEffect,useState} from 'react';
-import {getUserIssuedBook ,singleissueABook ,issueABookReturn,returnReqAction} from "../actions/Issue_action"
+import React, { useEffect, useState, useMemo } from 'react';
+import { getUserIssuedBook, singleissueABook, issueABookReturn, returnReqAction } from "../actions/Issue_action"
 import { useDispatch, useSelector } from 'react-redux'
-import {Modal,Button} from "react-bootstrap"
+import { Modal, Button, Spinner } from "react-bootstrap"
 import Moment from 'react-moment';
 import moment from 'moment';
 
 const UserIssuedBook = () => {
     const dispatch = useDispatch();
-      useEffect(()=>{
+    const [show, setShow] = useState(false);
+    const [date, setDate] = useState(null);
+    const [searchKey, setSearchKey] = useState("");
+
+    useEffect(() => {
         dispatch(getUserIssuedBook())
-      },[])
-      const [show, setShow] = useState(false);
-      const [date,setDate] = useState(null)
-      const [dateTo,setDateTo] = useState(null)
-      const handleClose = () => setShow(false);
-      const handleShow = () => setShow(true);
-      
-    const {userIssuedBook} = useSelector(state => state.userIssuedBookReducer)
-    const {singleIsBook} = useSelector(state => state.singleIssuedBookReducer)
-     
-    const issuedBook = userIssuedBook && userIssuedBook.filter(item => item.isIssue);
-   
-    const callantherFunction = (postId)=>{
-        dispatch(singleissueABook(postId))
+    }, [dispatch])
+
+    const { userIssuedBook, loading } = useSelector(state => state.userIssuedBookReducer)
+    const { singleIsBook } = useSelector(state => state.singleIssuedBookReducer)
+
+    const issuedBooks = userIssuedBook && userIssuedBook.filter(item => item.isIssue);
+
+    const filteredBooks = useMemo(() => {
+        if (!issuedBooks) return [];
+        return issuedBooks.filter(book =>
+            book.title.toLowerCase().includes(searchKey.toLowerCase()) ||
+            book.author.toLowerCase().includes(searchKey.toLowerCase())
+        );
+    }, [searchKey, issuedBooks]);
+
+    const handleSearchChange = (e) => {
+        setSearchKey(e.target.value);
+    };
+
+    const handleClose = () => setShow(false);
+
+    const handleModal = (postId, cDate) => {
+        setDate(cDate);
+        setShow(true);
+        dispatch(singleissueABook(postId));
     }
-    
-     const handleModal = (postId,cDate) => {
-         setDate(cDate) 
-        //  cDate.setDate(cDate.getDate() + 7);
-        //  console.log(cDate)
-         setShow(true);
-         callantherFunction(postId)
-     }
-    var dateFrom ;
-    var dayDiff ;
-    const now = new Date()
-  if(date){
-    //dateFrom = moment(date + 7 * 24 * 3600 * 1000).format('YYYY-MM-DD');
-    var result = new Date(date) ;
-    result.setDate(result.getDate() + 7);
-    dateFrom= result ;
 
-    var today = moment(new Date());
-    var end = moment(result); // another date
-var duration = moment.duration(today.diff(end));
-var days = duration.asDays();
-dayDiff = days
-      
-  }
+    const handleReqAndReturn = (book) => {
+        dispatch(issueABookReturn(book.bookId));
+        dispatch(returnReqAction(book));
+    }
 
-
-  const hanndleReqandReturn = (book)=>{
-      dispatch(issueABookReturn(book.bookId))
-
-       dispatch(returnReqAction(book))
-  }
-  
- 
- 
     return (
-        <div className="col-md-10 m-auto pt-4">
-          {!issuedBook.length  ? <>
-          <div className="bg-success p-2 text-center">
-          <h4 style={{textAlign:"center",fontFamily:"sans-serif",color:"white"}}>Yet you havn't Issued Book</h4>
-          </div>
-          
-          </> : 
-          <>
-            <h4 style={{textAlign:"center",fontFamily:"sans-serif"}}>My Issued Book</h4>
-            <table  className='table table-bordered table-responsive-sm'>
+        <div className="container-fluid py-4">
+            <div className="row justify-content-center">
+                <div className="col-md-10">
+                    <h1 className="text-center mb-4">My Issued Books</h1>
 
-<thead className='thead-dark bg-info'>
-    <tr>
-        <th style={{textAlign:"center"}}>Book</th>
-        <th style={{textAlign:"center"}}>Author</th>
-        <th style={{textAlign:"center"}}>Publisher</th>
-        <th style={{textAlign:"center"}}>Actions</th>
-    </tr>
-</thead>
-<tbody>
-    
-{issuedBook && issuedBook.map(book=>{
+                    {!issuedBooks || issuedBooks.length === 0 ? (
+                        <div className="alert alert-info text-center">
+                            <h4>You haven't issued any books yet.</h4>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="mb-4">
+                                <input
+                                    type="text"
+                                    className="form-control form-control-lg"
+                                    placeholder="Search book by Name or Author"
+                                    onChange={handleSearchChange}
+                                    value={searchKey}
+                                />
+                            </div>
 
-    return <tr key={book._id}>
-        <td style={{textAlign:"center"}}>{book.title}</td>
-        <td style={{textAlign:"center"}}>
-            {book.author}
-        </td >
-        <td style={{textAlign:"center"}}>
-            {book.publisher}
-        </td>
-       
-        <td style={{textAlign:"center"}}>
-            {/* <i className='fa fa-trash m-1' onClick={()=> console.log("okk")}></i> */}
-             {/* <button onClick={() => console.log("")} className="btn btn-success">Renew</button> */}
-             <button onClick={() => hanndleReqandReturn(book)} className="btn btn-danger mr" style={{marginRight:"5px"}}>Return </button>
-             <button onClick={() => handleModal(book.bookId,book.createdAt)} className="btn btn-success">Details</button>
-        </td>
+                            {loading ? (
+                                <div className="text-center">
+                                    <Spinner animation="border" variant="primary" />
+                                </div>
+                            ) : (
+                                <div className="card">
+                                    <div className="card-body p-0">
+                                        <div className="table-responsive">
+                                            <table className='table table-hover table-striped mb-0'>
+                                                <thead className='table-dark'>
+                                                    <tr>
+                                                        <th className="fw-semibold py-3">#</th>
+                                                        <th className="fw-semibold py-3">Title</th>
+                                                        <th className="fw-semibold py-3">Author</th>
+                                                        <th className="fw-semibold py-3">Publisher</th>
+                                                        <th className="fw-semibold py-3">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {filteredBooks.length === 0 ? (
+                                                        <tr>
+                                                            <td colSpan="5" className="text-center">
+                                                                {searchKey ? "No books available matching your search." : "You have no issued books."}
+                                                            </td>
+                                                        </tr>
+                                                    ) : (
+                                                        filteredBooks.map((book, index) => (
+                                                            <tr key={book._id}>
+                                                                <td style={{paddingTop:'17px',paddingBottom:'17px'}} className="align-middle">{index + 1}</td>
+                                                                <td className="align-middle">{book.title}</td>
+                                                                <td className="align-middle">{book.author}</td>
+                                                                <td className="align-middle">{book.publisher}</td>
+                                                                <td className="align-middle">
+                                                                    <button onClick={() => handleReqAndReturn(book)} className="btn btn-danger btn-sm me-2">
+                                                                        Return
+                                                                    </button>
+                                                                    <button onClick={() => handleModal(book.bookId, book.createdAt)} className="btn btn-success btn-sm">
+                                                                        Details
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        ))
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    )}
 
-    </tr>
-
-})}
-</tbody>
-
-</table>
-      <div>
-      <Modal show={show} onHide={handleClose}>
-        
-        <Modal.Body>
-            <h3><b>Book Name : </b>{singleIsBook && singleIsBook.title}</h3>
-            <p>  <b>Author :</b> {singleIsBook && singleIsBook.author}</p>
-            <p> <b>Publisher : </b>{singleIsBook && singleIsBook.publisher}</p>
-            <p> <b>Originally published: </b>{singleIsBook && singleIsBook.year}</p>
-            {/* <p>{date && date.substring(0,10)}</p> */}
-            <p> <b>Issued Date:</b>{date &&  <Moment format="YYYY-MM-DD">{date}</Moment>}</p>
-          
-            <p> <b>Return Date :</b> {date &&  <Moment format="YYYY-MM-DD">{dateFrom}</Moment>}</p>
-          
-          
-            <p>  {Math.floor(dayDiff) > 0 ?Math.floor(dayDiff) : null }  </p>
-            <h3> Fine : {Math.floor(dayDiff) > 0 ?Math.floor(dayDiff) * 15 : 0 } </h3>
-            {/* <p> {dateFrom && dateFrom}</p> */}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
-      
-        </Modal.Footer>
-      </Modal>
-      </div>
-       </> }
+                    <Modal show={show} onHide={handleClose}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Book Details</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <h3><b>Book Name: </b>{singleIsBook && singleIsBook.title}</h3>
+                            <p><b>Author: </b>{singleIsBook && singleIsBook.author}</p>
+                            <p><b>Publisher: </b>{singleIsBook && singleIsBook.publisher}</p>
+                            <p><b>Originally published: </b>{singleIsBook && singleIsBook.year}</p>
+                            <p><b>Issued Date: </b>{date && <Moment format="YYYY-MM-DD">{date}</Moment>}</p>
+                            <p><b>Return Date: </b>{date && <Moment format="YYYY-MM-DD" add={{ days: 7 }}>{date}</Moment>}</p>
+                            {(() => {
+                                const now = moment();
+                                const returnDate = moment(date).add(7, 'days');
+                                const dayDiff = now.diff(returnDate, 'days');
+                                const fine = Math.max(0, dayDiff * 15);
+                                return (
+                                    <>
+                                        <p><b>Days Overdue: </b>{Math.max(0, dayDiff)}</p>
+                                        <h3><b>Fine: </b>₹{fine}</h3>
+                                    </>
+                                );
+                            })()}
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={handleClose}>
+                                Close
+                            </Button>
+                        </Modal.Footer>
+                    </Modal>
+                </div>
+            </div>
         </div>
     );
 };

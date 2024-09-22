@@ -1,4 +1,5 @@
 import axios from "axios"
+import { getAllBooks } from './book_action';  // Add this import
 
 export const issueABook = (book)=> async dispatch =>{
     dispatch({
@@ -222,3 +223,32 @@ export const issueABookReturn = (postId)=> async dispatch =>{
   
     
 }
+
+export const acceptRecommendedBook = (bookId) => async (dispatch) => {
+    dispatch({
+        type: 'ACCEPT_RECOMMENDED_BOOK_REQUEST'
+    });
+
+    try {
+        const response = await axios.post('/api/issues/acceptRecommendedBook', { bookId });
+        
+        // Fetch updated list of issue requests
+        const updatedIssues = await axios.get('/api/issues/allIssueRequest');
+        
+        dispatch({
+            type: 'ACCEPT_RECOMMENDED_BOOK_SUCCESS',
+            payload: updatedIssues.data
+        });
+
+        // Optionally, you can dispatch an action to update the books list
+        dispatch(getAllBooks());  // Assuming you have an action to fetch all books
+
+    } catch (error) {
+        dispatch({
+            type: 'ACCEPT_RECOMMENDED_BOOK_FAILED',
+            payload: error.response && error.response.data.message
+                ? error.response.data.message
+                : error.message,
+        });
+    }
+};

@@ -1,19 +1,42 @@
-import React,{useState,useEffect} from 'react';
-import {getAllBookIssueReq ,issuedReq,issuedReqDeletedByAdmin} from "../actions/Issue_action"
+import React, { useState, useEffect, useCallback } from 'react';
+import { getAllBookIssueReq, issuedReq, issuedReqDeletedByAdmin } from "../actions/Issue_action"
 import { useDispatch, useSelector } from 'react-redux'
 
 const IssueRequest = () => {
-
-    const dispatch = useDispatch() ;
+    const dispatch = useDispatch();
+    const [localIssuebooks, setLocalIssuebooks] = useState([]);
     
-    useEffect(()=> {
-        dispatch(getAllBookIssueReq())
-    },[])
-   
-   
+    const fetchIssueRequests = useCallback(() => {
+        dispatch(getAllBookIssueReq());
+    }, [dispatch]);
 
-    const {issuebooks} = useSelector(state => state.getAllIssueBookReqReducer)
-    const newIssuedBook = issuebooks && issuebooks.filter(item => !item.isIssue && !item.isRecom)
+    useEffect(() => {
+        fetchIssueRequests();
+    }, [fetchIssueRequests]);
+   
+    const { issuebooks } = useSelector(state => state.getAllIssueBookReqReducer)
+
+    useEffect(() => {
+        if (issuebooks) {
+            setLocalIssuebooks(issuebooks.filter(item => !item.isIssue && !item.isRecom));
+        }
+    }, [issuebooks]);
+
+    const handleAccept = async (bookId, bookItemId) => {
+        await dispatch(issuedReq(bookId, bookItemId));
+        console.log('Book accepted:', bookId);
+        // Update local state immediately
+        setLocalIssuebooks(prevBooks => prevBooks.filter(book => book._id !== bookId));
+    }
+
+    const handleReject = async (bookId) => {
+        await dispatch(issuedReqDeletedByAdmin(bookId));
+        console.log('Book rejected:', bookId);
+        // Update local state immediately
+        setLocalIssuebooks(prevBooks => prevBooks.filter(book => book._id !== bookId));
+    }
+
+    console.log('Current issue requests:', localIssuebooks);
 
     return (
         <div className="col-md-10 m-auto">
@@ -32,7 +55,7 @@ const IssueRequest = () => {
 </thead>
 <tbody>
     
-{newIssuedBook && newIssuedBook.map(book=>{
+{localIssuebooks && localIssuebooks.map(book=>{
 
     return <tr key={book._id} >
         <td>{book.title}</td>
@@ -48,8 +71,8 @@ const IssueRequest = () => {
        
         <td>
            
-             <button onClick={() => dispatch(issuedReq(book._id,book.bookId))} className="btn btn-success">Accepted</button> { "  "}
-             <button onClick={() => dispatch(issuedReqDeletedByAdmin(book._id))} className="btn btn-danger">Rejected</button>
+             <button onClick={() => handleAccept(book._id, book.bookId)} className="btn btn-success">Accepted</button> { "  "}
+             <button onClick={() => handleReject(book._id)} className="btn btn-danger">Rejected</button>
         </td>
 
     </tr>

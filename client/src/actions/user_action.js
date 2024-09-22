@@ -106,3 +106,17 @@ export const removeAStudent = (postId)=> async dispatch =>{
   
     
 }
+
+export const addBookToUserIssued = (userId, book) => async (dispatch) => {
+    try {
+        // Make an API call to add the book to the user's issued books
+        const response = await axios.post(`/api/users/${userId}/issuedbooks`, book);
+        
+        dispatch({
+            type: 'ADD_BOOK_TO_USER_ISSUED',
+            payload: response.data
+        });
+    } catch (error) {
+        console.error('Error adding book to user issued:', error);
+    }
+};

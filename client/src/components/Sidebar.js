@@ -41,10 +41,12 @@ const Sidebar = () => {
          <i className="fas fa-book" style={{ marginRight: '10px' }}></i>
          All Books
        </Link>
-       <Link to="/dashboard/Recommandation" style={isActive('/dashboard/Recommandation') ? activeLinkStyle : linkStyle}>
-         <i className="fas fa-star" style={{ marginRight: '10px' }}></i>
-         Recommendation
-       </Link>
+       {currentUser.user.isAdmin && (
+         <Link to="/dashboard/Recommandation" style={isActive('/dashboard/Recommandation') ? activeLinkStyle : linkStyle}>
+           <i className="fas fa-star" style={{ marginRight: '10px' }}></i>
+           Recommendation
+         </Link>
+       )}
        {currentUser.user.isAdmin ? (
          <>
            <Link to="/dashboard/addBook" style={isActive('/dashboard/addBook') ? activeLinkStyle : linkStyle}>
@@ -67,20 +69,14 @@ const Sidebar = () => {
              <i className="fas fa-exchange-alt" style={{ marginRight: '10px' }}></i>
              Today's Issues
            </Link>
-           <Link to="/dashboard/returnBook" style={isActive('/dashboard/returnBook') ? activeLinkStyle : linkStyle}>
-             <i className="fas fa-undo" style={{ marginRight: '10px' }}></i>
-             Today's Returns
-           </Link>
-           <Link to="/dashboard/addEmployee" style={isActive('/dashboard/addEmployee') ? activeLinkStyle : linkStyle}>
-             <i className="fas fa-user-plus" style={{ marginRight: '10px' }}></i>
-             Add Employee
-           </Link>
+        
+        
          </>
        ) : (
          <>
            <Link to="/dashboard/RecomBook" style={isActive('/dashboard/RecomBook') ? activeLinkStyle : linkStyle}>
              <i className="fas fa-thumbs-up" style={{ marginRight: '10px' }}></i>
-             Recommended Books
+             Recommend A Book
            </Link>
            <Link to="/dashboard/issuedBook" style={isActive('/dashboard/issuedBook') ? activeLinkStyle : linkStyle}>
              <i className="fas fa-book-open" style={{ marginRight: '10px' }}></i>

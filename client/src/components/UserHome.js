@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { userProfile } from "../actions/user_action";
-import { getUserIssuedBook, getAllIssuedBook, filterallIssuedBook } from "../actions/Issue_action";
+import { getUserIssuedBook, getAllIssuedBook, filterallIssuedBook, issuedReqDeletedByAdmin } from "../actions/Issue_action";
 import { useDispatch, useSelector } from 'react-redux';
 import Image from "../Images/profile2.png";
 import TableDate from "../components/TableDate";
@@ -23,6 +23,11 @@ const UserHome = () => {
 
     const fetchDataAgain = () => {
         dispatch(getAllIssuedBook());
+    };
+
+    const clearIssuedBook = (bookId) => {
+        dispatch(issuedReqDeletedByAdmin(bookId));
+        fetchDataAgain();
     };
 
     return (
@@ -111,7 +116,7 @@ const UserHome = () => {
                                 </thead>
                                 <tbody>
                                     {all_IssuedBook && all_IssuedBook.map(book => (
-                                        <TableDate key={book._id} book={book} fetchDataAgain={fetchDataAgain} />
+                                        <TableDate key={book._id} book={book} fetchDataAgain={fetchDataAgain} clearIssuedBook={clearIssuedBook} />
                                     ))}
                                 </tbody>
                             </table>

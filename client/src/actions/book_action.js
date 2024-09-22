@@ -71,3 +71,22 @@ export const deleteBook = (bookId) => async (dispatch) => {
         dispatch({ type: 'DELETE_BOOK_FAIL', payload: error.response ? error.response.data : error.message });
     }
 };
+
+export const getAllBooks = () => async (dispatch) => {
+    dispatch({ type: 'GET_ALL_BOOKS_REQUEST' });
+
+    try {
+        const response = await axios.get('/api/books/allBook');
+        dispatch({
+            type: 'GET_ALL_BOOKS_SUCCESS',
+            payload: response.data
+        });
+    } catch (error) {
+        dispatch({
+            type: 'GET_ALL_BOOKS_FAILED',
+            payload: error.response && error.response.data.message
+                ? error.response.data.message
+                : error.message,
+        });
+    }
+};

@@ -183,4 +183,53 @@ router.post("/singleIssuedBook", async(req, res) => {
 
 
 
+// Add this new route
+router.post("/acceptRecommendedBook", async (req, res) => {
+    const { bookId } = req.body;
+    
+    try {
+        // Find the recommended book in the Issue collection
+        const recommendedBook = await Issue.findOne({ _id: bookId, isRecom: true });
+        
+        if (!recommendedBook) {
+            return res.status(404).json({ message: "Recommended book not found" });
+        }
+        
+        // Create a new book in the Book collection
+        const newBook = new Book({
+            title: recommendedBook.title,
+            author: recommendedBook.author,
+            publisher: recommendedBook.publisher,
+            year: recommendedBook.year,
+            copies: 1, // Start with 1 copy
+        });
+        
+        await newBook.save();
+        
+        // Create a new issue for the user
+        const newIssue = new Issue({
+            title: recommendedBook.title,
+            author: recommendedBook.author,
+            publisher: recommendedBook.publisher,
+            year: recommendedBook.year,
+            userId: recommendedBook.userId,
+            bookId: newBook._id,
+            userBranch: recommendedBook.userBranch,
+            userName: recommendedBook.userName,
+            isIssue: true,
+            isRecom: false
+        });
+
+        await newIssue.save();
+        
+        // Remove the original recommendation
+        await Issue.findByIdAndDelete(bookId);
+        
+        res.status(200).json({ message: "Recommended book accepted, added to library, and issued to user successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(400).json({ message: "Error accepting recommended book", error: error.message });
+    }
+});
+
 module.exports = router;
